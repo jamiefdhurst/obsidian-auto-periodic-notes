@@ -48,7 +48,10 @@ labels:
   - name: "🔨 task"
     color: 4346cc
     description: Technical or build task
-milestones: null
+milestones:
+  - title: Auto Periodic Notes Initial Release
+    description: Everything needed for the initial release of the plugin, including all functionality.
+    state: open
 branches:
   - name: main
     protection:
