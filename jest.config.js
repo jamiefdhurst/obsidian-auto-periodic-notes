@@ -20,6 +20,7 @@ module.exports = {
       }
     }
   },
+  coverageReporters: ['html', 'text', 'cobertura'],
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!<rootDir>/node_modules/',
