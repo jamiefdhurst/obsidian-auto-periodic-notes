@@ -17,8 +17,8 @@ export default class QuarterlyNote extends Note {
     return !!note;
   }
   
-  async create(): Promise<void> {
+  async create(): Promise<TFile> {
     const start: Moment = this.date.clone().startOf(UNIT);
-    await createQuarterlyNote(start);
+    return createQuarterlyNote(start);
   }
 }
