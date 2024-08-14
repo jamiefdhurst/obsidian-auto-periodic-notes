@@ -17,8 +17,8 @@ export default class MonthlyNote extends Note {
     return !!note;
   }
   
-  async create(): Promise<void> {
+  async create(): Promise<TFile> {
     const start: Moment = this.date.clone().startOf(UNIT);
-    await createMonthlyNote(start);
+    return createMonthlyNote(start);
   }
 }

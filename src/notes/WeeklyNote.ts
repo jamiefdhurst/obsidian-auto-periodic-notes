@@ -17,8 +17,8 @@ export default class WeeklyNote extends Note {
     return !!note;
   }
   
-  async create(): Promise<void> {
+  async create(): Promise<TFile> {
     const start: Moment = this.date.clone().startOf(UNIT);
-    await createWeeklyNote(start);
+    return createWeeklyNote(start);
   }
 }
