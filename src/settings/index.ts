@@ -57,3 +57,11 @@ export class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
     });
   }
 }
+
+export function applyDefaultSettings(savedSettings: ISettings): ISettings {
+  return Object.assign(
+    {},
+    DEFAULT_SETTINGS,
+    savedSettings || {}
+  );
+}

@@ -9,6 +9,9 @@ const app = <App>window.app;
 
 export interface IPeriodicNotesPeriodicitySettings {
   enabled: boolean;
+  folder: string;
+  format: string;
+  template: string;
 }
 
 export interface IPeriodicNotesSettings {
