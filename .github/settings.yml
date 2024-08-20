@@ -60,7 +60,4 @@ branches:
         strict: true
         contexts: ['Test']
       enforce_admins: false
-      restrictions:
-        apps: []
-        users: []
-        teams: []
+      restrictions: null
