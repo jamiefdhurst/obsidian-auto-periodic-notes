@@ -1,22 +1,26 @@
 /// <reference types="svelte" />
 
-import { App, Notice, Plugin } from 'obsidian';
-import Log from './utils/log';
-import { applyDefaultSettings, AutoPeriodicNotesSettingsTab } from './settings';
+import { Notice, Plugin, type PluginManifest } from 'obsidian';
 import { SETTINGS_UPDATED } from './events';
-import type { ISettings } from './settings';
-import { convertPeriodicNotesSettings, getPeriodicNotesSettings, isPeriodicNotesPluginEnabled, PERIODIC_NOTES_EVENT_SETTING_UPDATED } from './utils/periodic-notes';
-import type { Workspace } from './types';
-import { checkAndCreateNotes } from './notes';
-
-declare global {
-  interface Window {
-    app: App
-  }
-}
+import { NoteManager } from './notes/NoteManager';
+import { PERIODIC_NOTES_EVENT_SETTING_UPDATED, PeriodicNotes } from './periodic-notes';
+import { applyDefaultSettings, type ISettings } from './settings';
+import { AutoPeriodicNotesSettingsTab } from './settings/SettingsTab';
+import type { ObsidianApp, ObsidianWorkspace } from './types';
+import Log from './utils/log';
 
 export default class AutoPeriodicNotes extends Plugin {
-  public settings: ISettings = {} as ISettings;
+  public settings: ISettings;
+  private periodicNotes: PeriodicNotes;
+  private noteManager: NoteManager;
+
+  constructor(app: ObsidianApp, manifest: PluginManifest) {
+    super(app, manifest);
+
+    this.settings = {} as ISettings;
+    this.periodicNotes = new PeriodicNotes(app);
+    this.noteManager = new NoteManager(app.workspace);
+  }
 
   async onload(): Promise<void> {
     this.updateSettings = this.updateSettings.bind(this);
@@ -29,7 +33,7 @@ export default class AutoPeriodicNotes extends Plugin {
   onLayoutReady(): void {
     Log.info('Loading Auto Periodic Notes...');
 
-    if (!isPeriodicNotesPluginEnabled()) {
+    if (!this.periodicNotes.isPeriodicNotesPluginEnabled()) {
       Log.info('Plugin is unavailable - not loading Auto functionality...')
       new Notice(
         'The Periodic Notes plugin must be installed and available for Auto Periodic Notes to work.',
@@ -39,7 +43,7 @@ export default class AutoPeriodicNotes extends Plugin {
     }
 
     // Watch for Periodic Notes settings changes
-    const workspace: Workspace = this.app.workspace;
+    const workspace: ObsidianWorkspace = this.app.workspace;
     this.registerEvent(workspace.on(PERIODIC_NOTES_EVENT_SETTING_UPDATED, this.syncPeriodicNotesSettings.bind(this)));
 
     // Add the settings tab
@@ -66,7 +70,9 @@ export default class AutoPeriodicNotes extends Plugin {
 
   private syncPeriodicNotesSettings(): void {
     Log.info('Syncing settings from Periodic Notes...');
-    this.updateSettings(convertPeriodicNotesSettings(this.settings, getPeriodicNotesSettings()));
+    this.updateSettings(this.periodicNotes.convertPeriodicNotesSettings(
+      this.settings, this.periodicNotes.getPeriodicNotesSettings()
+    ));
   }
 
   private onSettingsUpdate(): void {
@@ -75,6 +81,6 @@ export default class AutoPeriodicNotes extends Plugin {
 
   private createNewNotes(): void {
     Log.info('Checking if new notes are required...');
-    checkAndCreateNotes(this.settings);
+    this.noteManager.checkAndCreateNotes(this.settings);
   }
 }

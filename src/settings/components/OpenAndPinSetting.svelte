@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Writable } from 'svelte/store';
-  import { capitalise } from '../../utils';
   import type { IPeriodicity, ISettings } from '..';
+  import { capitalise } from '../../utils';
 
   export let settings: Writable<ISettings>;
   export let periodicity: IPeriodicity;

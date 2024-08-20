@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { writable, type Writable } from 'svelte/store';
-  import { capitalise } from '../../utils';
-  import type { IPeriodicity, ISettings } from '../index';
   import { onDestroy } from 'svelte';
+  import { writable, type Writable } from 'svelte/store';
   import { slide } from 'svelte/transition';
-  import PeriodicNotesUnavailableBanner from '../components/PeriodicNotesUnavailableBanner.svelte';
   import OpenAndPinSetting from '../components/OpenAndPinSetting.svelte';
+  import PeriodicNotesUnavailableBanner from '../components/PeriodicNotesUnavailableBanner.svelte';
+  import type { IPeriodicity, ISettings } from '../index';
+  import { capitalise } from '../../utils';
 
   export let settings: ISettings;
   export let onUpdateSettings: (newSettings: ISettings) => void;

@@ -1,4 +1,4 @@
-import { capitalise } from '../../src/utils';
+import { capitalise } from '../../utils';
 
 describe('capitalise', () => {
   
