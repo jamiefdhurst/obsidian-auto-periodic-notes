@@ -4,6 +4,14 @@ on:
   push:
     branches:
       - 'main'
+    paths:
+      - '*.js'
+      - '*.mjs'
+      - '*.json'
+      - '*.ts'
+      - '*.md'
+      - 'docs/**'
+      - 'src/**'
 
 permissions:
   contents: write
