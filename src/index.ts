@@ -7,7 +7,6 @@ import { PERIODIC_NOTES_EVENT_SETTING_UPDATED, PeriodicNotes } from './periodic-
 import { applyDefaultSettings, type ISettings } from './settings';
 import { AutoPeriodicNotesSettingsTab } from './settings/SettingsTab';
 import type { ObsidianApp, ObsidianWorkspace } from './types';
-import Log from './utils/log';
 
 export default class AutoPeriodicNotes extends Plugin {
   public settings: ISettings;
@@ -31,10 +30,7 @@ export default class AutoPeriodicNotes extends Plugin {
   }
 
   onLayoutReady(): void {
-    Log.info('Loading Auto Periodic Notes...');
-
     if (!this.periodicNotes.isPeriodicNotesPluginEnabled()) {
-      Log.info('Plugin is unavailable - not loading Auto functionality...')
       new Notice(
         'The Periodic Notes plugin must be installed and available for Auto Periodic Notes to work.',
         10000
@@ -57,19 +53,16 @@ export default class AutoPeriodicNotes extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    Log.info('Loading settings...');
     this.settings = applyDefaultSettings(await this.loadData());
   }
 
   async updateSettings(settings: ISettings): Promise<void> {
-    Log.info('Updating settings...');
     this.settings = settings;
     await this.saveData(this.settings);
     this.onSettingsUpdate();
   }
 
   private syncPeriodicNotesSettings(): void {
-    Log.info('Syncing settings from Periodic Notes...');
     this.updateSettings(this.periodicNotes.convertPeriodicNotesSettings(
       this.settings, this.periodicNotes.getPeriodicNotesSettings()
     ));
@@ -80,7 +73,6 @@ export default class AutoPeriodicNotes extends Plugin {
   }
 
   private createNewNotes(): void {
-    Log.info('Checking if new notes are required...');
     this.noteManager.checkAndCreateNotes(this.settings);
   }
 }
