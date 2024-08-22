@@ -34,7 +34,6 @@ jobs:
         with:
           version_format: "${major}.${minor}.${patch}"
       - name: Determine Next Version
-        if: ${{ contains(steps.latest.outputs.name, '.') }}
         id: version
         uses: haya14busa/action-cond@v1
         with:
