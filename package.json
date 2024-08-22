@@ -9,7 +9,7 @@
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
     "coverage": "jest --coverage",
     "test-ci": "jest --ci --reporters=default --reporters=jest-junit --coverage",
-    "version": "node version-bump.mjs && git add manifest.json versions.json"
+    "version": "node version-bump.mjs"
   },
   "keywords": [],
   "author": "Jamie Hurst <jamie@jamiehurst.co.uk>",
