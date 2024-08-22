@@ -1,8 +1,6 @@
 import { Notice, TFile } from 'obsidian';
 import type { IPeriodicitySettings, ISettings } from '../settings';
 import type { ObsidianWorkspace } from '../types';
-import { capitalise } from '../utils';
-import Log from '../utils/log';
 import DailyNote from './DailyNote';
 import MonthlyNote from './MonthlyNote';
 import type Note from './Note';
@@ -30,18 +28,15 @@ export class NoteManager {
     if (setting.available && setting.enabled) {
       if (!cls.isPresent()) {
 
-        Log.info(`${capitalise(term)} note creation required...`);
         const newNote: TFile = await cls.create();
         new Notice(
           `Today's ${term} note has been created.`,
           5000
         );
-        Log.info(`${capitalise(term)} note created`);
 
         if (setting.openAndPin) {
           await this.workspace.getLeaf(true).openFile(newNote);
           this.workspace.getMostRecentLeaf()?.setPinned(true);
-          Log.info(`${capitalise(term)} note pinned`);
         }
       }
     }
