@@ -9,9 +9,10 @@ describe('Weekly Note', () => {
   let mockGetAllNotes: jest.MockedFunction<typeof dailyNotesInterface.getAllDailyNotes>;
 
   beforeEach(() => {
+    const emptyRecord: Record<string, TFile> = {};
     mockGetAllNotes = dailyNotesInterface.getAllWeeklyNotes as jest.MockedFunction<typeof dailyNotesInterface.getAllWeeklyNotes>;
     mockGetAllNotes.mockImplementation(() => {
-      return {} as Record<string, TFile>;
+      return emptyRecord;
     });
   });
 
