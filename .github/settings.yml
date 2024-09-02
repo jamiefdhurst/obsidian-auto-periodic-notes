@@ -1,8 +1,8 @@
 repository:
   name: obsidian-auto-periodic-notes
-  description: Creates new periodic notes automatically in the background and allows these to be pinned in your open tabs, requires the "Periodic Notes" plugin.
+  description: Obsidian plugin to create new periodic notes automatically in the background and allow these to be pinned in your open tabs. Requires the "Periodic Notes" plugin.
   topics: obsidian, typescript, plugin, notes, pkm
-  private: true
+  private: false
   has_issues: true
   has_projects: false
   has_wiki: false
