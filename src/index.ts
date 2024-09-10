@@ -41,6 +41,7 @@ export default class AutoPeriodicNotes extends Plugin {
     // Watch for Periodic Notes settings changes
     const workspace: ObsidianWorkspace = this.app.workspace;
     this.registerEvent(workspace.on(PERIODIC_NOTES_EVENT_SETTING_UPDATED, this.syncPeriodicNotesSettings.bind(this)));
+    this.syncPeriodicNotesSettings();
 
     // Add the settings tab
     this.addSettingTab(new AutoPeriodicNotesSettingsTab(this.app, this));
