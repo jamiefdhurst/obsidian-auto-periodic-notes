@@ -1,5 +1,3 @@
-/// <reference types="svelte" />
-
 import { Notice, Plugin, type PluginManifest } from 'obsidian';
 import { SETTINGS_UPDATED } from './events';
 import { NoteManager } from './notes/NoteManager';

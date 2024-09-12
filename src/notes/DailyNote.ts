@@ -1,5 +1,5 @@
-import moment, { type Moment, type unitOfTime } from 'moment';
-import type { TFile } from 'obsidian';
+import { Moment, unitOfTime } from 'moment';
+import { moment, type TFile } from 'obsidian';
 import { createDailyNote, getAllDailyNotes, getDailyNote } from 'obsidian-daily-notes-interface';
 import Note from './Note';
 
