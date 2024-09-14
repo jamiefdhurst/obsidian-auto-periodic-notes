@@ -2,8 +2,7 @@ import { Notice, Plugin, type PluginManifest } from 'obsidian';
 import { SETTINGS_UPDATED } from './events';
 import { NoteManager } from './notes/NoteManager';
 import { PERIODIC_NOTES_EVENT_SETTING_UPDATED, PeriodicNotes } from './periodic-notes';
-import { applyDefaultSettings, type ISettings } from './settings';
-import { AutoPeriodicNotesSettingsTab } from './settings/SettingsTab';
+import { applyDefaultSettings, AutoPeriodicNotesSettingsTab, type ISettings } from './settings';
 import type { ObsidianApp, ObsidianWorkspace } from './types';
 
 export default class AutoPeriodicNotes extends Plugin {
@@ -46,9 +45,11 @@ export default class AutoPeriodicNotes extends Plugin {
 
     // Register the standard check for new notes and run immediately
     this.registerInterval(
-      window.setInterval(() => this.createNewNotes.bind(this), 300000)
+      window.setInterval(() => {
+        this.noteManager.checkAndCreateNotes(this.settings);
+      }, 300000)
     );
-    this.createNewNotes();
+    this.noteManager.checkAndCreateNotes(this.settings);
   }
 
   async loadSettings(): Promise<void> {
@@ -69,9 +70,5 @@ export default class AutoPeriodicNotes extends Plugin {
 
   private onSettingsUpdate(): void {
     this.app.workspace.trigger(SETTINGS_UPDATED);
-  }
-
-  private createNewNotes(): void {
-    this.noteManager.checkAndCreateNotes(this.settings);
   }
 }

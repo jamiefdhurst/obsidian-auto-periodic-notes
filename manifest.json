@@ -1,10 +1,10 @@
 {
-ss"id": "auto-periodic-notes",
-ss"name": "Auto Periodic Notes",
-ss"version": "0.1.0",
-ss"minAppVersion": "1.6.6",
-ss"description": "Creates new periodic notes automatically in the background and allows these to be pinned in your open tabs, requires the Periodic Notes plugin.",
-ss"author": "Jamie Hurst",
-ss"authorUrl": "https://jamiehurst.co.uk",
-ss"isDesktopOnly": false
+  "id": "auto-periodic-notes",
+  "name": "Auto Periodic Notes",
+  "version": "0.1.0",
+  "minAppVersion": "1.6.6",
+  "description": "Creates new periodic notes automatically in the background and allows these to be pinned in your open tabs, requires the Periodic Notes plugin.",
+  "author": "Jamie Hurst",
+  "authorUrl": "https://jamiehurst.co.uk",
+  "isDesktopOnly": false
 }
