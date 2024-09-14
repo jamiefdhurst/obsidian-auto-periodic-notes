@@ -1,5 +1,6 @@
 import * as momentImpl from 'moment';
 
+export class PluginSettingTab {}
 export class TAbstractFile {}
 export class TFile extends TAbstractFile {
   public basename!: string;

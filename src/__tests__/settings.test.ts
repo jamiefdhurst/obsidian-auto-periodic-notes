@@ -1,4 +1,4 @@
-import { applyDefaultSettings, type ISettings } from '../../settings';
+import { applyDefaultSettings, type ISettings } from '../settings';
 
 describe('settings', () => {
 
