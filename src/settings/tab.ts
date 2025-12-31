@@ -1,6 +1,7 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
-import { IPeriodicity, ISettings } from '.';
+import { App, PluginSettingTab, Setting, ToggleComponent } from 'obsidian';
+import { ISettings } from '.';
 import AutoPeriodicNotes from '..';
+import { periodicities } from '../constants';
 
 export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
   public plugin: AutoPeriodicNotes;
@@ -14,7 +15,6 @@ export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
     this.containerEl.empty();
 
     const settings: ISettings = this.plugin.settings;
-    const periodicities: IPeriodicity[] = ['daily', 'weekly', 'monthly', 'quarterly', 'yearly'];
 
     if (
       !settings.daily.available &&
@@ -91,16 +91,32 @@ export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
             });
         }
 
+        let pinToggle: ToggleComponent;
         new Setting(this.containerEl)
-          .setName(`Open and pin new ${periodicity} notes`)
+          .setName(`Open new ${periodicity} notes`)
           .setDesc(
             'When enabled, whether to automatically open the new note and pin it to your tabs.'
           )
           .addToggle((toggle) => {
-            toggle.setValue(settings[periodicity].openAndPin).onChange(async (val) => {
-              settings[periodicity].openAndPin = val;
+            toggle.setValue(settings[periodicity].open).onChange(async (val) => {
+              settings[periodicity].open = val;
+              pinToggle.setDisabled(!val);
               await this.plugin.updateSettings(settings);
             });
+          });
+
+        new Setting(this.containerEl)
+          .setName(`Pin new ${periodicity} notes`)
+          .setDesc('When enabled, whether to automatically pin the new note to your tabs.')
+          .addToggle((toggle) => {
+            pinToggle = toggle;
+            toggle
+              .setDisabled(!settings[periodicity].open)
+              .setValue(settings[periodicity].pin)
+              .onChange(async (val) => {
+                settings[periodicity].pin = val;
+                await this.plugin.updateSettings(settings);
+              });
           });
 
         new Setting(this.containerEl)

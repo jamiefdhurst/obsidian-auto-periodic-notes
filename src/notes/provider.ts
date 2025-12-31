@@ -150,14 +150,14 @@ export default class NotesProvider {
   }
 
   private async handleOpen(setting: IPeriodicitySettings, newNote: TFile): Promise<void> {
-    if (
-      setting.openAndPin &&
-      Object.keys(this.getOpenWorkspaceLeaves()).indexOf(newNote.path) === -1
-    ) {
+    if (setting.open && Object.keys(this.getOpenWorkspaceLeaves()).indexOf(newNote.path) === -1) {
       debug('Opening note in new tab');
       const leaf = this.workspace.getLeaf(true);
       await leaf.openFile(newNote);
-      leaf.setPinned(true);
+      if (setting.pin) {
+        debug('Pinning note');
+        leaf.setPinned(true);
+      }
     }
   }
 }

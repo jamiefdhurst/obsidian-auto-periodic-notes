@@ -1,10 +1,15 @@
+import debug from '../log';
+import { periodicities } from '../constants';
+
 export type IPeriodicity = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
 
 export interface IPeriodicitySettings {
   available: boolean;
   enabled: boolean;
   closeExisting: boolean;
-  openAndPin: boolean;
+  openAndPin?: boolean; // This will be removed in a future breaking change release
+  open: boolean;
+  pin: boolean;
 }
 
 export interface IDailySettings extends IPeriodicitySettings {
@@ -25,7 +30,8 @@ export const DEFAULT_PERIODICITY_SETTINGS: IPeriodicitySettings = Object.freeze(
   available: false,
   enabled: false,
   closeExisting: false,
-  openAndPin: false,
+  open: false,
+  pin: false,
 });
 
 export const DEFAULT_SETTINGS: ISettings = Object.freeze({
@@ -39,5 +45,24 @@ export const DEFAULT_SETTINGS: ISettings = Object.freeze({
 });
 
 export function applyDefaultSettings(savedSettings: ISettings): ISettings {
+  let settingsMigrated: boolean = false;
+
+  // Convert "openAndPin" into "open" and "pin" settings
+  for (const periodicity of periodicities) {
+    if (
+      typeof savedSettings[periodicity] !== 'undefined' &&
+      typeof savedSettings[periodicity].openAndPin !== 'undefined'
+    ) {
+      savedSettings[periodicity].open = savedSettings[periodicity].openAndPin;
+      savedSettings[periodicity].pin = savedSettings[periodicity].openAndPin;
+      savedSettings[periodicity].openAndPin = undefined;
+      settingsMigrated = true;
+    }
+  }
+
+  if (settingsMigrated) {
+    debug('Migrated "openAndPin" settings when loading settings');
+  }
+
   return Object.assign({}, DEFAULT_SETTINGS, savedSettings);
 }

@@ -9,7 +9,8 @@ describe('settings', () => {
     expect(result.daily.available).toEqual(false);
     expect(result.daily.enabled).toEqual(false);
     expect(result.daily.closeExisting).toEqual(false);
-    expect(result.daily.openAndPin).toEqual(false);
+    expect(result.daily.open).toEqual(false);
+    expect(result.daily.pin).toEqual(false);
   });
 
   it('applies default settings but overrides with saved settings correctly', () => {
@@ -18,7 +19,8 @@ describe('settings', () => {
         available: true,
         enabled: true,
         closeExisting: true,
-        openAndPin: true,
+        open: true,
+        pin: true,
       },
     } as ISettings;
 
@@ -27,6 +29,28 @@ describe('settings', () => {
     expect(result.daily.available).toEqual(true);
     expect(result.daily.enabled).toEqual(true);
     expect(result.daily.closeExisting).toEqual(true);
-    expect(result.daily.openAndPin).toEqual(true);
+    expect(result.daily.open).toEqual(true);
+    expect(result.daily.pin).toEqual(true);
+  });
+
+  it('applies default settings and migrates saved settings with "openAndPin" correctly', () => {
+    const settings = {
+      daily: {
+        available: true,
+        enabled: true,
+        closeExisting: true,
+        openAndPin: true,
+        open: false,
+        pin: false,
+      },
+    } as ISettings;
+
+    const result = applyDefaultSettings(settings);
+
+    expect(result.daily.available).toEqual(true);
+    expect(result.daily.enabled).toEqual(true);
+    expect(result.daily.closeExisting).toEqual(true);
+    expect(result.daily.open).toEqual(true);
+    expect(result.daily.pin).toEqual(true);
   });
 });

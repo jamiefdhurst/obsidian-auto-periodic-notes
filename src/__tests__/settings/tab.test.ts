@@ -74,7 +74,8 @@ describe('settings tab', () => {
     sut.display();
 
     expect(setNameSpy).toHaveBeenCalledWith('Enable automatic daily notes');
-    expect(setNameSpy).toHaveBeenCalledWith('Open and pin new daily notes');
+    expect(setNameSpy).toHaveBeenCalledWith('Open new daily notes');
+    expect(setNameSpy).toHaveBeenCalledWith('Pin new daily notes');
     expect(setNameSpy).toHaveBeenCalledWith('Close older daily notes');
     expect(setNameSpy).toHaveBeenCalledWith('Exclude weekends');
     expect(setNameSpy).not.toHaveBeenCalledWith('Enable automatic weekly notes');
@@ -88,7 +89,8 @@ describe('settings tab', () => {
     sut.display();
 
     expect(setNameSpy).toHaveBeenCalledWith('Enable automatic weekly notes');
-    expect(setNameSpy).toHaveBeenCalledWith('Open and pin new weekly notes');
+    expect(setNameSpy).toHaveBeenCalledWith('Open new weekly notes');
+    expect(setNameSpy).toHaveBeenCalledWith('Pin new weekly notes');
     expect(setNameSpy).toHaveBeenCalledWith('Close older weekly notes');
     expect(setNameSpy).not.toHaveBeenCalledWith('Exclude weekends');
     expect(setNameSpy).not.toHaveBeenCalledWith('Enable automatic monthly notes');
@@ -109,7 +111,8 @@ describe('settings tab', () => {
     expect(setNameSpy).toHaveBeenCalledWith('Enable automatic monthly notes');
     expect(setNameSpy).toHaveBeenCalledWith('Enable automatic quarterly notes');
     expect(setNameSpy).toHaveBeenCalledWith('Enable automatic yearly notes');
-    expect(setNameSpy).toHaveBeenCalledWith('Open and pin new yearly notes');
+    expect(setNameSpy).toHaveBeenCalledWith('Open new yearly notes');
+    expect(setNameSpy).toHaveBeenCalledWith('Pin new yearly notes');
     expect(setNameSpy).toHaveBeenCalledWith('Close older yearly notes');
   });
 });
