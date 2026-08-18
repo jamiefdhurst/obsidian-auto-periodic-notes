@@ -17,6 +17,21 @@ This plugin respects the settings of the Periodic Notes plugin, creating your no
 - Supports opening and pinning the new notes automatically when created
 - Supports automatically closing older notes
 - Can exclude weekends from daily note generation
+- Optionally commits and pushes your vault to git at the end of each day (desktop only, off by default)
+
+## Automatic git commits
+
+If your vault is a git repository, the plugin can commit and push your changes once a day. This is **disabled by default** and only runs when you turn it on in the settings.
+
+When enabled, and only between 18:00 and 18:05 local time, the plugin runs three commands in your vault directory:
+
+```bash
+git add .
+git commit -m "<your configured message>"
+git push
+```
+
+These are run by spawning the `git` binary already installed on your machine, via Node's `child_process` module. That module is loaded lazily, behind a `Platform.isDesktop` check, so nothing Node-related is touched on mobile — the rest of the plugin works there as normal, with this feature simply unavailable. No other process is ever spawned, and the plugin makes no network requests of its own; only your own `git push` talks to your own remote.
 
 ## Settings
 

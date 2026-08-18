@@ -387,7 +387,7 @@ describe('Notes Provider', () => {
       typeof MarkdownView.prototype.getState
     >;
     mockViewGetState
-      .mockReturnValueOnce(undefined)
+      .mockReturnValueOnce(undefined as unknown as Record<string, unknown>)
       .mockReturnValueOnce({})
       .mockReturnValueOnce({ file: 'daily/2025-01-01.md' })
       .mockReturnValueOnce({ file: newFile.path });
@@ -440,7 +440,7 @@ describe('Notes Provider', () => {
       typeof MarkdownView.prototype.getState
     >;
     mockViewGetState
-      .mockReturnValueOnce(undefined)
+      .mockReturnValueOnce(undefined as unknown as Record<string, unknown>)
       .mockReturnValueOnce({})
       .mockReturnValueOnce({ file: 'not-a-daily-file.md' })
       .mockReturnValueOnce({ file: 'daily/2025-01-01.md' });
@@ -499,7 +499,7 @@ describe('Notes Provider', () => {
       typeof MarkdownView.prototype.getState
     >;
     mockViewGetState
-      .mockReturnValueOnce(undefined)
+      .mockReturnValueOnce(undefined as unknown as Record<string, unknown>)
       .mockReturnValueOnce({})
       .mockReturnValueOnce({ file: 'daily/2025-01-01.md' })
       .mockReturnValueOnce({ file: expectedFile.path });
@@ -629,7 +629,7 @@ describe('Notes Provider', () => {
       typeof MarkdownView.prototype.getState
     >;
     mockViewGetState
-      .mockReturnValueOnce(undefined)
+      .mockReturnValueOnce(undefined as unknown as Record<string, unknown>)
       .mockReturnValueOnce({})
       .mockReturnValueOnce({ file: 'not-a-daily-file.md' })
       .mockReturnValueOnce({ file: 'daily/2025-01-01.md' });

@@ -52,13 +52,9 @@ class AutoPeriodicNotesTestable extends AutoPeriodicNotes {
     this.app = app;
     this.manifest = manifest;
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadData(): Promise<any> {
     return Promise.resolve(DEFAULT_SETTINGS);
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveData(data: any): Promise<void> {
     return Promise.resolve();
   }

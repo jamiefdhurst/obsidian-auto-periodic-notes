@@ -112,8 +112,9 @@ export default class NotesProvider {
   private getOpenWorkspaceLeaves(): Record<string, WorkspaceLeaf> {
     if (!Object.keys(this.workspaceLeaves).length) {
       this.workspace.iterateAllLeaves((leaf) => {
-        if (leaf.view.getState() && typeof leaf.view.getState().file !== 'undefined') {
-          this.workspaceLeaves[leaf.view.getState().file] = leaf;
+        const file = leaf.view.getState()?.file;
+        if (typeof file === 'string') {
+          this.workspaceLeaves[file] = leaf;
         }
       });
     }
@@ -145,7 +146,7 @@ export default class NotesProvider {
       }
 
       // Ensure that it waits a second for the new tab to have been created if ALL existing leaves have been detached
-      await new Promise((resolve) => setTimeout(resolve, this.waitTimeout));
+      await new Promise((resolve) => window.setTimeout(resolve, this.waitTimeout));
     }
   }
 

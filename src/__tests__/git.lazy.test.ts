@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
-import { Moment } from 'moment';
-import { FileSystemAdapter, moment, Vault } from 'obsidian';
+import type { Moment } from 'moment';
+import { FileSystemAdapter, moment, Platform, Vault } from 'obsidian';
 import { DEFAULT_SETTINGS, ISettings } from '../settings';
 
 // Tracks whether `node:child_process` has actually been pulled into the module
@@ -32,14 +32,12 @@ describe('Git lazy loading of node:child_process', () => {
   });
 
   it('does not load node:child_process when the module is imported', () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../git');
 
     expect(mockChildProcess.loaded).toBe(false);
   });
 
   it('does not load node:child_process on a mobile-style adapter', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { Git } = require('../git');
 
     // Mobile uses a CapacitorAdapter, i.e. not a FileSystemAdapter
@@ -54,8 +52,27 @@ describe('Git lazy loading of node:child_process', () => {
     expect(mockChildProcess.spawn).not.toHaveBeenCalled();
   });
 
+  it('does not load node:child_process when Platform is not desktop', async () => {
+    const { Git } = require('../git');
+
+    // A desktop-style adapter, so only the Platform check can stop the load
+    const vault = jest.fn() as unknown as Vault;
+    vault.adapter = new FileSystemAdapter();
+    vault.adapter.exists = jest.fn().mockResolvedValue(true);
+    (vault.adapter as FileSystemAdapter).getBasePath = jest.fn().mockReturnValue('/mock/path');
+
+    Platform.isDesktop = false;
+    try {
+      await new Git(vault, now).commitChanges(settings);
+    } finally {
+      Platform.isDesktop = true;
+    }
+
+    expect(mockChildProcess.loaded).toBe(false);
+    expect(mockChildProcess.spawn).not.toHaveBeenCalled();
+  });
+
   it('loads node:child_process when a command actually runs', async () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { Git } = require('../git');
 
     const vault = jest.fn() as unknown as Vault;
