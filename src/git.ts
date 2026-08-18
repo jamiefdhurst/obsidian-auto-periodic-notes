@@ -1,5 +1,4 @@
 import { Moment } from 'moment';
-import { spawn } from 'node:child_process';
 import { FileSystemAdapter, moment, Vault } from 'obsidian';
 import debug from './log';
 import { ISettings } from './settings';
@@ -64,6 +63,9 @@ export class Git {
   }
 
   private async runCommand(args: string[]): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { spawn } = require('node:child_process') as typeof import('node:child_process');
+
     return new Promise((resolve, reject) => {
       const process = spawn('git', args, {
         cwd: this.getBasePath(),
