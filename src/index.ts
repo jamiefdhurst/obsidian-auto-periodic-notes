@@ -17,6 +17,7 @@ export default class AutoPeriodicNotes extends Plugin {
   public settings: ISettings;
   private periodicNotesPlugin: PeriodicNotesPluginAdapter;
   private notes: NotesProvider;
+  private settingsTab?: AutoPeriodicNotesSettingsTab;
   private initialRunStarted: boolean = false;
 
   constructor(app: ObsidianApp, manifest: PluginManifest) {
@@ -57,8 +58,10 @@ export default class AutoPeriodicNotes extends Plugin {
     );
     this.syncPeriodicNotesSettings();
 
-    // Add the settings tab
-    this.addSettingTab(new AutoPeriodicNotesSettingsTab(this.app, this));
+    // Add the settings tab, keeping a reference so that its definitions can be
+    // rebuilt when the available note types change
+    this.settingsTab = new AutoPeriodicNotesSettingsTab(this.app, this);
+    this.addSettingTab(this.settingsTab);
 
     // Register the commit check to run each five minutes
     this.registerInterval(
@@ -128,6 +131,9 @@ export default class AutoPeriodicNotes extends Plugin {
   }
 
   private onSettingsUpdate(): void {
+    // Rebuild the settings definitions, as the set of available note types may
+    // have changed since the tab was registered
+    this.settingsTab?.update();
     this.app.workspace.trigger(SETTINGS_UPDATED);
   }
 }

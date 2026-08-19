@@ -1,4 +1,4 @@
-# Automatic Periodic Notes for Obsidian
+# Auto Periodic Notes
 
 Creates new periodic notes automatically in the background and allows these to be pinned in your open tabs; supports daily, weekly, monthly, quarterly and yearly notes.
 

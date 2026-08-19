@@ -1,5 +1,4 @@
 import { App, PluginSettingTab, type SettingDefinitionItem } from 'obsidian';
-import { ISettings } from '.';
 import AutoPeriodicNotes from '..';
 import { periodicities } from '../constants';
 import { TEMPLATER_PLUGIN } from '../templater';
@@ -14,21 +13,21 @@ export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
   }
 
   getSettingDefinitions(): SettingDefinitionItem[] {
-    const settings: ISettings = this.plugin.settings;
     const items: SettingDefinitionItem[] = [];
 
-    if (!periodicities.some((periodicity) => settings[periodicity].available)) {
-      items.push({
-        type: 'group',
-        cls: 'settings-banner',
-        items: [
-          {
-            name: 'No periodic notes enabled',
-            desc: 'No periodic notes settings are enabled. You must turn on one of daily, weekly, monthly, quarterly or yearly notes within the Periodic Notes plugin settings to be able to configure them to generate automatically.',
-          },
-        ],
-      });
-    }
+    // Every `visible` predicate below is re-evaluated on each render, so that
+    // enabling a note type in Periodic Notes is reflected without a reload
+    items.push({
+      type: 'group',
+      cls: 'settings-banner',
+      visible: () => !this.isAnyPeriodicityAvailable(),
+      items: [
+        {
+          name: 'No periodic notes enabled',
+          desc: 'No periodic notes settings are enabled. You must turn on one of daily, weekly, monthly, quarterly or yearly notes within the Periodic Notes plugin settings to be able to configure them to generate automatically.',
+        },
+      ],
+    });
 
     items.push({
       type: 'group',
@@ -39,16 +38,13 @@ export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
           desc: "When opening Obsidian or checking notes, always open your periodic notes even when they haven't just been created. This can be useful for maintaining a consistent workspace with pinned notes each time you start your day.",
           control: { type: 'toggle', key: 'alwaysOpen' },
         },
-        // Only show the Templater setting if the Templater plugin is installed
-        ...(this.isTemplaterInstalled()
-          ? [
-              {
-                name: 'Process Templater code in automatically created notes',
-                desc: 'When enabled, automatically process and remove Templater syntax (like <% tp.file.cursor(0) %>) from notes created in the background. Note: With the current implementation of Templater processing APIs, this leads to a brief creation and then closure of tabs in the UI.',
-                control: { type: 'toggle' as const, key: 'processTemplater' },
-              },
-            ]
-          : []),
+        {
+          // Only show the Templater setting if the Templater plugin is installed
+          visible: () => this.isTemplaterInstalled(),
+          name: 'Process Templater code in automatically created notes',
+          desc: 'When enabled, automatically process and remove Templater syntax (like <% tp.file.cursor(0) %>) from notes created in the background. Note: With the current implementation of Templater processing APIs, this leads to a brief creation and then closure of tabs in the UI.',
+          control: { type: 'toggle', key: 'processTemplater' },
+        },
       ],
     });
 
@@ -70,13 +66,10 @@ export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
     });
 
     for (const periodicity of periodicities) {
-      if (!settings[periodicity].available) {
-        continue;
-      }
-
       items.push({
         type: 'group',
         heading: `Automatic ${periodicity} notes`,
+        visible: () => this.plugin.settings[periodicity].available,
         items: [
           {
             name: `Enable automatic ${periodicity} notes`,
@@ -152,6 +145,10 @@ export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
 
     // Re-evaluate the `disabled` predicates, e.g. pin depends on open
     this.refreshDomState();
+  }
+
+  private isAnyPeriodicityAvailable(): boolean {
+    return periodicities.some((periodicity) => this.plugin.settings[periodicity].available);
   }
 
   private isTemplaterInstalled(): boolean {

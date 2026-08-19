@@ -4,11 +4,23 @@ import { DEFAULT_SETTINGS, ISettings } from '../../settings';
 import AutoPeriodicNotesSettingsTab from '../../settings/tab';
 
 /**
- * Collects the `name` of every setting definition, including those nested
- * inside groups, so tests can assert on what the tab exposes.
+ * Resolves a `visible` predicate, which may be absent, a boolean or a function.
+ */
+function isVisible(item: { visible?: boolean | (() => boolean) }): boolean {
+  if (typeof item.visible === 'function') {
+    return item.visible();
+  }
+  return item.visible !== false;
+}
+
+/**
+ * Collects the `name` of every setting definition that would actually render,
+ * including those nested inside groups, so tests can assert on what the user
+ * sees. Definitions are built once and hidden by predicate, so visibility has
+ * to be resolved the same way Obsidian resolves it on each render.
  */
 function names(items: SettingDefinitionItem[]): string[] {
-  return items.flatMap((item) => {
+  return items.filter(isVisible).flatMap((item) => {
     const group = item as SettingDefinitionGroup;
     if (group.items) {
       return [...(group.heading ? [group.heading] : []), ...names(group.items)];
@@ -68,6 +80,19 @@ describe('settings tab', () => {
     plugin.settings.daily.available = true;
 
     expect(names(sut.getSettingDefinitions())).not.toContain('No periodic notes enabled');
+  });
+
+  it('reflects note types becoming available after the definitions were built', () => {
+    // The definitions are snapshotted when the tab is registered, so enabling a
+    // note type later has to be picked up by the visibility predicates
+    const definitions = sut.getSettingDefinitions();
+    expect(names(definitions)).toContain('No periodic notes enabled');
+    expect(names(definitions)).not.toContain('Enable automatic monthly notes');
+
+    plugin.settings.monthly.available = true;
+
+    expect(names(definitions)).not.toContain('No periodic notes enabled');
+    expect(names(definitions)).toContain('Enable automatic monthly notes');
   });
 
   it('displays the always open setting', () => {
