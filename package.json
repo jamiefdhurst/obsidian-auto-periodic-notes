@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/jamiefdhurst/obsidian-auto-periodic-notes#readme",
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
+    "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.2.0",
     "esbuild": "^0.28.2",
