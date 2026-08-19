@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-08-19
+
+### Fixed
+
+- fix: repair release pipeline trigger and clarify version impact comment (990ccb5)
+- (efe1825)
+
+### Other
+
+- chore: reduce dependabot volume with monthly cadence and single dev group (3a4187e)
+
 ## [1.2.0] - 2026-08-19
 
 ### Added
@@ -16,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - fix: rebuild settings definitions when available note types change (b068dfc)
+
+### Other
+
+- [skip ci] Update version to v1.2.0 (3b86c3d)
 
 ## [1.1.3] - 2026-08-18
 
