@@ -43,6 +43,23 @@ describe('AutoPeriodicNotes', () => {
     expect(sut.settings).toEqual(settings);
     expect(workspaceTrigger).toHaveBeenCalledWith(SETTINGS_UPDATED);
   });
+
+  it('rebuilds the settings tab definitions when settings change', async () => {
+    await sut.loadSettings();
+
+    const update = jest.fn();
+    (sut as any).settingsTab = { update };
+
+    await sut.updateSettings(sut.settings);
+
+    expect(update).toHaveBeenCalled();
+  });
+
+  it('updates settings when no settings tab has been registered yet', async () => {
+    await sut.loadSettings();
+
+    await expect(sut.updateSettings(sut.settings)).resolves.toBeUndefined();
+  });
 });
 
 class AutoPeriodicNotesTestable extends AutoPeriodicNotes {
@@ -52,13 +69,9 @@ class AutoPeriodicNotesTestable extends AutoPeriodicNotes {
     this.app = app;
     this.manifest = manifest;
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadData(): Promise<any> {
     return Promise.resolve(DEFAULT_SETTINGS);
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveData(data: any): Promise<void> {
     return Promise.resolve();
   }

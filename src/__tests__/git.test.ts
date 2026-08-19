@@ -1,4 +1,4 @@
-import { Moment } from 'moment';
+import type { Moment } from 'moment';
 import { Git } from '../git';
 import { FileSystemAdapter, moment, Vault } from 'obsidian';
 import { DEFAULT_SETTINGS, ISettings } from '../settings';

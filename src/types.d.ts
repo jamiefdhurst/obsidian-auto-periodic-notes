@@ -4,7 +4,15 @@ export class PluginSettingTab {}
 
 export interface CommunityPluginManager {
   enabledPlugins: Set<string>;
+  plugins: Record<string, unknown>;
   getPlugin(id: string): Plugin | undefined;
+}
+
+export interface TemplaterPlugin {
+  settings?: Record<string, unknown>;
+  templater: {
+    overwrite_active_file_commands(): Promise<void>;
+  };
 }
 
 export type ObsidianAppWithPlugins = {
@@ -12,7 +20,6 @@ export type ObsidianAppWithPlugins = {
 };
 export type ObsidianApp = App & ObsidianAppWithPlugins;
 export type ObsidianWorkspaceWithOn = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  on(name: string, callback: () => void, ctx?: any): EventRef;
+  on(name: string, callback: () => void, ctx?: unknown): EventRef;
 };
 export type ObsidianWorkspace = Workspace & ObsidianWorkspaceWithOn;

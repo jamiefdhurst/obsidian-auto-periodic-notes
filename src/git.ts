@@ -1,5 +1,5 @@
-import { Moment } from 'moment';
-import { FileSystemAdapter, moment, Vault } from 'obsidian';
+import type { Moment } from 'moment';
+import { FileSystemAdapter, moment, Platform, Vault } from 'obsidian';
 import debug from './log';
 import { ISettings } from './settings';
 
@@ -50,12 +50,12 @@ export class Git {
 
       debug('Git commit complete');
     } catch (err) {
-      debug(`Error committing to git: ${err}`);
+      debug(`Error committing to git: ${String(err)}`);
     }
   }
 
   private getBasePath(): string {
-    let adapter = this.vault.adapter;
+    const adapter = this.vault.adapter;
     if (adapter instanceof FileSystemAdapter) {
       return adapter.getBasePath();
     }
@@ -63,16 +63,21 @@ export class Git {
   }
 
   private async runCommand(args: string[]): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { spawn } = require('node:child_process') as typeof import('node:child_process');
+    if (Platform.isDesktop) {
+      // Imported lazily and behind the desktop guard so that mobile, which has
+      // no Node runtime, never loads a Node built-in
+      const { spawn } = await import('node:child_process');
 
-    return new Promise((resolve, reject) => {
-      const process = spawn('git', args, {
-        cwd: this.getBasePath(),
+      return new Promise((resolve, reject) => {
+        const process = spawn('git', args, {
+          cwd: this.getBasePath(),
+        });
+        process.on('close', () => resolve());
+        process.on('error', (err) => reject(err));
+        process.stderr.on('data', (data) => reject(new Error(String(data))));
       });
-      process.on('close', () => resolve());
-      process.on('error', (err) => reject(err));
-      process.stderr.on('data', (data) => reject(data));
-    });
+    }
+
+    debug('Skipping git command, Node APIs are not available on mobile');
   }
 }

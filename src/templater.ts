@@ -1,5 +1,8 @@
 import type { App, TFile } from 'obsidian';
 import debug from './log';
+import type { ObsidianApp, TemplaterPlugin } from './types';
+
+export const TEMPLATER_PLUGIN: string = 'templater-obsidian';
 
 /**
  * Gets the Templater plugin instance if it's installed and enabled.
@@ -7,9 +10,9 @@ import debug from './log';
  * @param app The Obsidian app instance
  * @returns The Templater plugin instance or null if not available
  */
-function getTemplater(app: App): any {
-  const plugins = (app as any).plugins;
-  return plugins?.plugins?.['templater-obsidian'] || null;
+function getTemplater(app: App): TemplaterPlugin | null {
+  const plugins = (app as ObsidianApp).plugins;
+  return (plugins?.plugins?.[TEMPLATER_PLUGIN] as TemplaterPlugin) || null;
 }
 
 /**
@@ -39,7 +42,7 @@ export async function processTemplaterInFile(
   if (force || !templater?.settings?.['trigger_on_file_creation']) {
     debug(`Processing Templater commands in file: ${file.path}`);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => window.setTimeout(resolve, 500));
 
       const previousActiveFile = app.workspace.getActiveFile();
       const wasAlreadyActive = previousActiveFile?.path === file.path;
@@ -50,11 +53,11 @@ export async function processTemplaterInFile(
         // Open in a new tab so we don't modify existing tabs
         tempLeaf = app.workspace.getLeaf('tab');
         await tempLeaf.openFile(file);
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise((resolve) => window.setTimeout(resolve, 200));
       }
 
       await templater.templater.overwrite_active_file_commands();
-      await new Promise((resolve) => setTimeout(resolve, 300));
+      await new Promise((resolve) => window.setTimeout(resolve, 300));
 
       if (tempLeaf && !wasAlreadyActive) {
         tempLeaf.detach();
@@ -62,7 +65,7 @@ export async function processTemplaterInFile(
 
       debug('Templater processing completed successfully');
     } catch (error) {
-      debug(`Error processing Templater commands: ${error}`);
+      debug(`Error processing Templater commands: ${String(error)}`);
     }
   } else {
     debug('Skipping Templater processing - trigger_on_file_creation is enabled');

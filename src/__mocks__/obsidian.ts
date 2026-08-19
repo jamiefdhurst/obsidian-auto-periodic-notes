@@ -1,8 +1,23 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as momentImpl from 'moment';
 
 export class Plugin {}
-export class PluginSettingTab {}
+
+export class PluginSettingTab {
+  app: unknown;
+  containerEl: HTMLElement = document.createElement('div');
+
+  constructor(app: unknown, plugin: unknown) {
+    this.app = app;
+  }
+
+  refreshDomState = jest.fn();
+  update = jest.fn();
+}
+
+export const Platform = {
+  isDesktop: true,
+  isMobile: false,
+};
 
 export const App = jest.fn();
 
@@ -71,8 +86,8 @@ export class Setting {
 }
 
 export class FileSystemAdapter {
-  async exists(normalizedPath: string, sensitive?: boolean): Promise<boolean> {
-    return true;
+  exists(normalizedPath: string, sensitive?: boolean): Promise<boolean> {
+    return Promise.resolve(true);
   }
 
   getBasePath(): string {

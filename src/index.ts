@@ -1,6 +1,5 @@
 import { Notice, Plugin, type PluginManifest } from 'obsidian';
 import {
-  ObsidianAppWithPlugins,
   PERIODIC_NOTES_EVENT_SETTING_UPDATED,
   PeriodicNotesPluginAdapter,
 } from 'obsidian-periodic-notes-provider';
@@ -18,25 +17,30 @@ export default class AutoPeriodicNotes extends Plugin {
   public settings: ISettings;
   private periodicNotesPlugin: PeriodicNotesPluginAdapter;
   private notes: NotesProvider;
+  private settingsTab?: AutoPeriodicNotesSettingsTab;
   private initialRunStarted: boolean = false;
 
   constructor(app: ObsidianApp, manifest: PluginManifest) {
     super(app, manifest);
 
     this.settings = {} as ISettings;
-    this.periodicNotesPlugin = new PeriodicNotesPluginAdapter(app as ObsidianAppWithPlugins);
+    this.periodicNotesPlugin = new PeriodicNotesPluginAdapter(app);
     this.notes = new NotesProvider(app.workspace, app);
   }
 
-  async onload(): Promise<void> {
+  onload(): void {
     this.updateSettings = this.updateSettings.bind(this);
 
-    await this.loadSettings();
-
-    this.app.workspace.onLayoutReady(await this.onLayoutReady.bind(this));
+    void this.initialise();
   }
 
-  async onLayoutReady(): Promise<void> {
+  async initialise(): Promise<void> {
+    await this.loadSettings();
+
+    this.app.workspace.onLayoutReady(() => this.onLayoutReady());
+  }
+
+  onLayoutReady(): void {
     if (!this.periodicNotesPlugin.isEnabled()) {
       new Notice(
         'The Periodic Notes plugin must be installed and available for Auto Periodic Notes to work.',
@@ -54,20 +58,22 @@ export default class AutoPeriodicNotes extends Plugin {
     );
     this.syncPeriodicNotesSettings();
 
-    // Add the settings tab
-    this.addSettingTab(new AutoPeriodicNotesSettingsTab(this.app, this));
+    // Add the settings tab, keeping a reference so that its definitions can be
+    // rebuilt when the available note types change
+    this.settingsTab = new AutoPeriodicNotesSettingsTab(this.app, this);
+    this.addSettingTab(this.settingsTab);
 
     // Register the commit check to run each five minutes
     this.registerInterval(
       window.setInterval(() => {
-        new Git(this.app.vault).commitChanges(this.settings);
+        void new Git(this.app.vault).commitChanges(this.settings);
       }, 300000)
     );
 
     // Register the standard check for new notes and run immediately
     this.registerInterval(
       window.setInterval(() => {
-        this.notes.checkAndCreateNotes(this.settings);
+        void this.notes.checkAndCreateNotes(this.settings);
       }, 300000)
     );
 
@@ -81,10 +87,10 @@ export default class AutoPeriodicNotes extends Plugin {
       );
 
       // Fallback to a 20 second timeout if there is no loaded event fired
-      window.setTimeout(this.initialRun.bind(this), 20000);
+      window.setTimeout(() => void this.initialRun(), 20000);
     } else {
       // Run initial load before calling event
-      this.initialRun();
+      void this.initialRun();
     }
   }
 
@@ -102,7 +108,7 @@ export default class AutoPeriodicNotes extends Plugin {
   }
 
   async loadSettings(): Promise<void> {
-    this.settings = applyDefaultSettings(await this.loadData());
+    this.settings = applyDefaultSettings((await this.loadData()) as ISettings);
     debug('Loaded settings: ' + JSON.stringify(this.settings));
   }
 
@@ -121,10 +127,13 @@ export default class AutoPeriodicNotes extends Plugin {
     this.settings.monthly.available = pluginSettings.monthly.available;
     this.settings.quarterly.available = pluginSettings.quarterly.available;
     this.settings.yearly.available = pluginSettings.yearly.available;
-    this.updateSettings(this.settings);
+    void this.updateSettings(this.settings);
   }
 
   private onSettingsUpdate(): void {
+    // Rebuild the settings definitions, as the set of available note types may
+    // have changed since the tab was registered
+    this.settingsTab?.update();
     this.app.workspace.trigger(SETTINGS_UPDATED);
   }
 }
