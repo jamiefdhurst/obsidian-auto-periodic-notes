@@ -4,14 +4,8 @@ on:
   push:
     branches:
       - 'main'
-    paths:
-      - '*.js'
-      - '*.mjs'
-      - '*.json'
-      - '*.ts'
-      - '*.md'
-      - 'docs/**'
-      - 'src/**'
+    # No paths filter: should_release already gates on commit type, and a filter
+    # here strands commits that only touch .github/**
 
 permissions:
   contents: write
