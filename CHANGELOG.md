@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-08-19
+
+### Added
+
+- feat: clear community directory scan findings and adopt declarative settings (ed42a05)
+- feat: grey out dependent settings until a note type is enabled (8aa031a)
+- (93b9041)
+
+### Fixed
+
+- fix: rebuild settings definitions when available note types change (b068dfc)
+
 ## [1.1.3] - 2026-08-18
 
 ### Fixed
@@ -198,6 +210,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - (955c2b2)
 - chore(deps-dev): bump esbuild from 0.28.1 to 0.28.2 (5fa6dfe)
 - (1dada75)
+- [skip ci] Update version to v1.1.3 (16cd6c2)
 
 ## [1.1.2] - 2026-01-12
 
