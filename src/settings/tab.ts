@@ -81,14 +81,22 @@ export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
                 {
                   name: 'Exclude weekends',
                   desc: 'Only create new daily notes Monday - Friday, excluding Saturdays and Sundays.',
-                  control: { type: 'toggle' as const, key: `${periodicity}.excludeWeekends` },
+                  control: {
+                    type: 'toggle' as const,
+                    key: `${periodicity}.excludeWeekends`,
+                    disabled: () => !this.plugin.settings[periodicity].enabled,
+                  },
                 },
               ]
             : []),
           {
             name: `Open new ${periodicity} notes`,
             desc: 'Automatically open the new note when created.',
-            control: { type: 'toggle', key: `${periodicity}.open` },
+            control: {
+              type: 'toggle',
+              key: `${periodicity}.open`,
+              disabled: () => !this.plugin.settings[periodicity].enabled,
+            },
           },
           {
             name: `Pin new ${periodicity} notes`,
@@ -96,14 +104,20 @@ export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
             control: {
               type: 'toggle',
               key: `${periodicity}.pin`,
-              // Pinning is meaningless unless the note is opened
-              disabled: () => !this.plugin.settings[periodicity].open,
+              // Pinning is meaningless unless the note is created and opened
+              disabled: () =>
+                !this.plugin.settings[periodicity].enabled ||
+                !this.plugin.settings[periodicity].open,
             },
           },
           {
             name: `Close older ${periodicity} notes`,
             desc: `When creating new notes, automatically close any older and open ${periodicity} notes.`,
-            control: { type: 'toggle', key: `${periodicity}.closeExisting` },
+            control: {
+              type: 'toggle',
+              key: `${periodicity}.closeExisting`,
+              disabled: () => !this.plugin.settings[periodicity].enabled,
+            },
           },
         ],
       });

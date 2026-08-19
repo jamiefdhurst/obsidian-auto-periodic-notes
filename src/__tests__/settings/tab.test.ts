@@ -162,14 +162,41 @@ describe('settings tab', () => {
     expect(displayed).toContain('Git commit message format');
   });
 
-  it('disables pinning until the note is set to open', () => {
+  it('disables the dependent settings until the note type is enabled', () => {
+    plugin.settings.daily.available = true;
+
+    const definitions = sut.getSettingDefinitions();
+    const dependents = ['Exclude weekends', 'Open new daily notes', 'Close older daily notes'].map(
+      (name) => find(definitions, name)
+    );
+
+    for (const dependent of dependents) {
+      expect(dependent.control.disabled()).toBe(true);
+    }
+
+    plugin.settings.daily.enabled = true;
+
+    for (const dependent of dependents) {
+      expect(dependent.control.disabled()).toBe(false);
+    }
+  });
+
+  it('disables pinning until the note type is enabled and set to open', () => {
     plugin.settings.daily.available = true;
 
     const pin = find(sut.getSettingDefinitions(), 'Pin new daily notes');
     expect(pin.control.disabled()).toBe(true);
 
+    // Enabled, but not opening the note, so pinning is still meaningless
+    plugin.settings.daily.enabled = true;
+    expect(pin.control.disabled()).toBe(true);
+
     plugin.settings.daily.open = true;
     expect(pin.control.disabled()).toBe(false);
+
+    // And disabling the note type again disables pinning with it
+    plugin.settings.daily.enabled = false;
+    expect(pin.control.disabled()).toBe(true);
   });
 
   it('reads top level and nested control values from the settings', () => {
