@@ -101,7 +101,12 @@ export default class NotesProvider {
         debug(
           `Set to always open notes, getting current ${term} note and checking if it needs to be opened`
         );
-        const existingNote: TFile = cls.getCurrent();
+        // getCurrent returns undefined if the note disappeared since isPresent() was checked
+        const existingNote: TFile | undefined = cls.getCurrent();
+        if (!existingNote) {
+          debug(`No current ${term} note found to open`);
+          return;
+        }
 
         await this.handleClose(setting, cls, existingNote);
         await this.handleOpen(setting, existingNote);

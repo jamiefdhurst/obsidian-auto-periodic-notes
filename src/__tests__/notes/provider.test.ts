@@ -667,4 +667,34 @@ describe('Notes Provider', () => {
     expect(mockOpenFile).toHaveBeenCalledWith(expectedFile);
     expect(mockSetPinned).toHaveBeenCalled();
   });
+
+  it('does nothing when the current note has disappeared since being checked', async () => {
+    settings.alwaysOpen = true;
+    settings.daily.available = true;
+    settings.daily.enabled = true;
+    settings.daily.closeExisting = true;
+    settings.daily.open = true;
+
+    const mockDailyIsPresent = DailyNote.prototype.isPresent as jest.MockedFunction<
+      typeof DailyNote.prototype.isPresent
+    >;
+    mockDailyIsPresent.mockImplementation(() => true);
+    const mockGetCurrent = DailyNote.prototype.getCurrent as jest.MockedFunction<
+      typeof DailyNote.prototype.getCurrent
+    >;
+    // Published typedefs still declare TFile, though v2 returns TFile | undefined at runtime
+    mockGetCurrent.mockImplementation(() => undefined as never);
+    const mockDailyGetAllPaths = DailyNote.prototype.getAllPaths as jest.MockedFunction<
+      typeof DailyNote.prototype.getAllPaths
+    >;
+    const mockOpenFile = WorkspaceLeaf.prototype.openFile as jest.MockedFunction<
+      typeof WorkspaceLeaf.prototype.openFile
+    >;
+
+    await expect(sut.checkAndCreateNotes(settings)).resolves.not.toThrow();
+
+    expect(mockGetCurrent).toHaveBeenCalled();
+    expect(mockDailyGetAllPaths).not.toHaveBeenCalled();
+    expect(mockOpenFile).not.toHaveBeenCalled();
+  });
 });
