@@ -10,6 +10,8 @@ on:
 permissions:
   contents: write
   id-token: write
+  # Required to record provenance attestations for the release assets
+  attestations: write
 
 jobs:
   Build:
@@ -67,6 +69,14 @@ jobs:
       - name: Build
         if: steps.version.outputs.should_release == 'true'
         run: npm run build
+      - name: Attest Build Provenance
+        if: steps.version.outputs.should_release == 'true'
+        uses: actions/attest-build-provenance@v4
+        with:
+          # Both files are published as release assets, so both are attested
+          subject-path: |
+            main.js
+            manifest.json
       - name: Generate Release Notes
         if: steps.version.outputs.should_release == 'true'
         id: release_notes
