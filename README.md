@@ -2,11 +2,17 @@
 
 Creates new periodic notes automatically in the background and allows these to be pinned in your open tabs; supports daily, weekly, monthly, quarterly and yearly notes.
 
-Designed to work with [Obsidian](https://obsidian.md), requires the [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes) plugin.
+Designed to work with [Obsidian](https://obsidian.md). The [Periodic Notes](https://github.com/liamcain/obsidian-periodic-notes) plugin is optional.
 
-_Note: this now supports the current (**v0.0.17**) and newer Beta (**v1.0.0-beta3**) versions of Periodic Notes available via [BRAT](https://tfthacker.com/BRAT). This functionality is provided through a [abstract provider](https://github.com/jamiefdhurst/obsidian-periodic-notes-provider) for the required plugin._
+_Note: this supports the current (**v0.0.17**) and newer Beta (**v1.0.0-beta3**) versions of Periodic Notes available via [BRAT](https://tfthacker.com/BRAT), as well as running without that plugin at all. This functionality is provided through an [abstract provider](https://github.com/jamiefdhurst/obsidian-periodic-notes-provider)._
 
-This plugin respects the settings of the Periodic Notes plugin, creating your notes using the templates, format and location you have selected.
+When the Periodic Notes plugin is installed, this plugin respects its settings, creating your notes using the templates, format and location you have selected.
+
+## Running without the Periodic Notes plugin
+
+If the Periodic Notes plugin isn't installed, all five note types are still available and are created using Obsidian's own defaults - `YYYY-MM-DD` for daily, `gggg-[W]ww` for weekly (or your [Calendar](https://github.com/liamcain/obsidian-calendar-plugin) plugin settings, if you have it), `YYYY-MM` for monthly, `YYYY-[Q]Q` for quarterly and `YYYY` for yearly, each in the vault root with no template. Your daily notes also pick up the settings from Obsidian's built-in Daily Notes core plugin.
+
+Which of those note types you actually want created remains entirely up to this plugin's own settings - nothing is turned on for you.
 
 ## Features
 
@@ -37,7 +43,7 @@ These are run by spawning the `git` binary already installed on your machine, vi
 
 ![Example of Settings screen within Obsidian](/docs/settings.png)
 
-Automatic creation can be toggled on and off for each of the supported note types, these are only shown if you have enabled and configured these notes within the Periodic Notes plugin. Within each note type, you can set whether to open and pin the note automatically, or whether to simply create it in the background, showing a notice when complete.
+Automatic creation can be toggled on and off for each of the supported note types. If you have the Periodic Notes plugin installed, only the note types you have enabled and configured there are shown; without it, all five are available. Within each note type, you can set whether to open and pin the note automatically, or whether to simply create it in the background, showing a notice when complete.
 
 ## Development
 
