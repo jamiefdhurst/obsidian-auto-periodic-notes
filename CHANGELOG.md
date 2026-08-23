@@ -5,12 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-08-23
+
+### Added
+
+- feat: make the Periodic Notes plugin optional (e669ff6)
+- (4b2845e)
+
+### Other
+
+- ci: attest build provenance for release assets (a733548)
+- (58800d1)
+
 ## [1.2.3] - 2026-08-19
 
 ### Fixed
 
 - fix: handle undefined return from getCurrent in provider v2 (ed49ed1)
 - (47cf2a2)
+
+### Other
+
+- [skip ci] Update version to v1.2.3 (1d7c376)
 
 ## [1.2.2] - 2026-08-19
 
