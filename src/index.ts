@@ -1,4 +1,4 @@
-import { Notice, Plugin, type PluginManifest } from 'obsidian';
+import { Plugin, type PluginManifest } from 'obsidian';
 import {
   PERIODIC_NOTES_EVENT_SETTING_UPDATED,
   PeriodicNotesPluginAdapter,
@@ -41,12 +41,13 @@ export default class AutoPeriodicNotes extends Plugin {
   }
 
   onLayoutReady(): void {
-    if (!this.periodicNotesPlugin.isEnabled()) {
-      new Notice(
-        'The Periodic Notes plugin must be installed and available for Auto Periodic Notes to work.',
-        10000
+    // The Periodic Notes plugin is optional - when it is absent the provider
+    // falls back to the native obsidian-daily-notes-interface defaults, so the
+    // plugin still works, it just has no external settings source to read from
+    if (this.periodicNotesPlugin.isNative()) {
+      debug(
+        'Periodic Notes plugin is not available, falling back to native periodic note defaults'
       );
-      return;
     }
 
     debug('Starting initial layout and load');
@@ -120,7 +121,9 @@ export default class AutoPeriodicNotes extends Plugin {
   }
 
   private syncPeriodicNotesSettings(): void {
-    debug('Received new settings from Periodic Notes plugin');
+    // Resolves against the Periodic Notes plugin when it is installed, and
+    // against the native defaults otherwise - either way this never throws
+    debug('Resolving the available periodic note types');
     const pluginSettings = this.periodicNotesPlugin.convertSettings();
     this.settings.daily.available = pluginSettings.daily.available;
     this.settings.weekly.available = pluginSettings.weekly.available;

@@ -682,8 +682,7 @@ describe('Notes Provider', () => {
     const mockGetCurrent = DailyNote.prototype.getCurrent as jest.MockedFunction<
       typeof DailyNote.prototype.getCurrent
     >;
-    // Published typedefs still declare TFile, though v2 returns TFile | undefined at runtime
-    mockGetCurrent.mockImplementation(() => undefined as never);
+    mockGetCurrent.mockImplementation(() => undefined);
     const mockDailyGetAllPaths = DailyNote.prototype.getAllPaths as jest.MockedFunction<
       typeof DailyNote.prototype.getAllPaths
     >;

@@ -5,7 +5,7 @@ import debug from '../log';
 import {
   DailyNote,
   MonthlyNote,
-  Note,
+  PeriodicNote,
   QuarterlyNote,
   WeeklyNote,
   YearlyNote,
@@ -69,7 +69,7 @@ export default class NotesProvider {
 
   private async checkAndCreateSingleNote(
     setting: IPeriodicitySettings,
-    cls: Note,
+    cls: PeriodicNote,
     term: string,
     alwaysOpen: boolean,
     processTemplater: boolean
@@ -129,7 +129,7 @@ export default class NotesProvider {
 
   private async handleClose(
     setting: IPeriodicitySettings,
-    cls: Note,
+    cls: PeriodicNote,
     newNote: TFile
   ): Promise<void> {
     if (setting.closeExisting) {
