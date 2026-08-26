@@ -23,6 +23,7 @@ Which of those note types you actually want created remains entirely up to this 
 - Supports opening and pinning the new notes automatically when created
 - Supports automatically closing older notes
 - Can exclude weekends from daily note generation
+- Can create weekly, monthly, quarterly and yearly notes at the end of their period rather than the start, which suits review notes
 - Optionally commits and pushes your vault to git at the end of each day (desktop only, off by default)
 
 ## Automatic git commits
@@ -44,6 +45,24 @@ These are run by spawning the `git` binary already installed on your machine, vi
 ![Example of Settings screen within Obsidian](/docs/settings.png)
 
 Automatic creation can be toggled on and off for each of the supported note types. If you have the Periodic Notes plugin installed, only the note types you have enabled and configured there are shown; without it, all five are available. Within each note type, you can set whether to open and pin the note automatically, or whether to simply create it in the background, showing a notice when complete.
+
+### Choosing when in the period a note is created
+
+Weekly, monthly, quarterly and yearly notes have a **Create new notes on** setting, with three choices, each named after the period itself - a monthly note offers "First day of the month", a yearly note "First day of the year", and so on:
+
+| Option       | When the note is created                                        |
+| ------------ | --------------------------------------------------------------- |
+| First day    | At the start of the period. This is the default.                |
+| Last weekday | On the last Monday to Friday within the period.                 |
+| Last day     | On the final day of the period, whether or not it is a weekday. |
+
+This changes only _when_ the note is created, never which note it is or how it is dated — August's monthly note is still August's monthly note. Creating a note at the end of its period suits reviews, where you want the period to have happened before you write anything.
+
+Each option shows the date it lands on for the current period, so you can see all three side by side before choosing - for example "Last weekday of the month (Mon 31 Aug)".
+
+Weekly notes follow your vault's configured week start, so with a week running Monday to Sunday, "first day" is Monday, "last weekday" is Friday and "last day" is Sunday.
+
+Daily notes do not have this setting, since it would have no effect.
 
 ## Development
 

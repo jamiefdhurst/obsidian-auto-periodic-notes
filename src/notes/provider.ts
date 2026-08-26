@@ -1,5 +1,5 @@
 import { moment, Notice, type TFile, type WorkspaceLeaf, type App } from 'obsidian';
-import { IDailySettings, IPeriodicitySettings, ISettings } from '../settings';
+import { IDailySettings, IPeriodicity, IPeriodicitySettings, ISettings } from '../settings';
 import { ObsidianWorkspace } from '../types';
 import debug from '../log';
 import {
@@ -11,6 +11,7 @@ import {
   YearlyNote,
 } from 'obsidian-periodic-notes-provider';
 import { processTemplaterInFile } from '../templater';
+import { isCreationDue } from './schedule';
 
 const DEFAULT_WAIT_TIMEOUT: number = 1000;
 
@@ -70,7 +71,7 @@ export default class NotesProvider {
   private async checkAndCreateSingleNote(
     setting: IPeriodicitySettings,
     cls: PeriodicNote,
-    term: string,
+    term: IPeriodicity,
     alwaysOpen: boolean,
     processTemplater: boolean
   ): Promise<void> {
@@ -83,6 +84,14 @@ export default class NotesProvider {
             debug('Not creating new note as it is a weekend');
             return;
           }
+        }
+
+        // Notes set to be created later in their period are held back until
+        // that day arrives - this is always the current period's note, so
+        // nothing about which note gets created changes here
+        if (!isCreationDue(term, setting.createOn)) {
+          debug(`Not creating new ${term} note yet, as it is not due until later in the period`);
+          return;
         }
 
         debug(`Creating new ${term} note`);
