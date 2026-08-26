@@ -28,6 +28,7 @@ describe('Notes Provider', () => {
         closeExisting: false,
         open: false,
         pin: false,
+        createOn: 'first-day',
         excludeWeekends: false,
       },
       weekly: {
@@ -36,6 +37,7 @@ describe('Notes Provider', () => {
         closeExisting: false,
         open: false,
         pin: false,
+        createOn: 'first-day',
       },
       monthly: {
         available: false,
@@ -43,6 +45,7 @@ describe('Notes Provider', () => {
         closeExisting: false,
         open: false,
         pin: false,
+        createOn: 'first-day',
       },
       quarterly: {
         available: false,
@@ -50,6 +53,7 @@ describe('Notes Provider', () => {
         closeExisting: false,
         open: false,
         pin: false,
+        createOn: 'first-day',
       },
       yearly: {
         available: false,
@@ -57,6 +61,7 @@ describe('Notes Provider', () => {
         closeExisting: false,
         open: false,
         pin: false,
+        createOn: 'first-day',
       },
       gitCommit: false,
       gitCommitMessage: '',
@@ -215,6 +220,95 @@ describe('Notes Provider', () => {
     expect(mockDailyIsPresent).toHaveBeenCalled();
     expect(mockDailyCreate).toHaveBeenCalled();
     expect(Notice).toHaveBeenCalledWith(`Today's daily note has been created.`, 5000);
+  });
+
+  it('does not create a monthly note set to the last day until that day arrives', async () => {
+    settings.monthly.available = true;
+    settings.monthly.enabled = true;
+    settings.monthly.createOn = 'last-day';
+
+    const mockMonthlyIsPresent = MonthlyNote.prototype.isPresent as jest.MockedFunction<
+      typeof MonthlyNote.prototype.isPresent
+    >;
+    mockMonthlyIsPresent.mockImplementation(() => false);
+    const spyMonthlyCreate = jest.spyOn(MonthlyNote.prototype, 'create');
+
+    // Mid-August, so the note is not due until the 31st
+    jest.spyOn(Date, 'now').mockReturnValue(new Date('2026-08-17T12:00:00Z').getTime());
+
+    await sut.checkAndCreateNotes(settings);
+
+    expect(mockMonthlyIsPresent).toHaveBeenCalled();
+    expect(spyMonthlyCreate).not.toHaveBeenCalled();
+  });
+
+  it('creates a monthly note set to the last day once that day arrives', async () => {
+    settings.monthly.available = true;
+    settings.monthly.enabled = true;
+    settings.monthly.createOn = 'last-day';
+
+    const mockMonthlyIsPresent = MonthlyNote.prototype.isPresent as jest.MockedFunction<
+      typeof MonthlyNote.prototype.isPresent
+    >;
+    mockMonthlyIsPresent.mockImplementation(() => false);
+    const mockMonthlyCreate = MonthlyNote.prototype.create as jest.MockedFunction<
+      typeof MonthlyNote.prototype.create
+    >;
+    mockMonthlyCreate.mockImplementation(() => Promise.resolve(new TFile()));
+
+    jest.spyOn(Date, 'now').mockReturnValue(new Date('2026-08-31T09:00:00Z').getTime());
+
+    await sut.checkAndCreateNotes(settings);
+
+    expect(mockMonthlyIsPresent).toHaveBeenCalled();
+    expect(mockMonthlyCreate).toHaveBeenCalled();
+  });
+
+  it('creates notes set to the first day at any point in the period', async () => {
+    settings.yearly.available = true;
+    settings.yearly.enabled = true;
+    settings.yearly.createOn = 'first-day';
+
+    const mockYearlyIsPresent = YearlyNote.prototype.isPresent as jest.MockedFunction<
+      typeof YearlyNote.prototype.isPresent
+    >;
+    mockYearlyIsPresent.mockImplementation(() => false);
+    const mockYearlyCreate = YearlyNote.prototype.create as jest.MockedFunction<
+      typeof YearlyNote.prototype.create
+    >;
+    mockYearlyCreate.mockImplementation(() => Promise.resolve(new TFile()));
+
+    jest.spyOn(Date, 'now').mockReturnValue(new Date('2026-08-17T12:00:00Z').getTime());
+
+    await sut.checkAndCreateNotes(settings);
+
+    expect(mockYearlyCreate).toHaveBeenCalled();
+  });
+
+  it('still opens an existing note that is set to be created later in its period', async () => {
+    settings.alwaysOpen = true;
+    settings.monthly.available = true;
+    settings.monthly.enabled = true;
+    settings.monthly.createOn = 'last-day';
+
+    const existing = new TFile();
+    existing.path = 'monthly/2026-08.md';
+
+    const mockMonthlyIsPresent = MonthlyNote.prototype.isPresent as jest.MockedFunction<
+      typeof MonthlyNote.prototype.isPresent
+    >;
+    mockMonthlyIsPresent.mockImplementation(() => true);
+    const mockMonthlyGetCurrent = MonthlyNote.prototype.getCurrent as jest.MockedFunction<
+      typeof MonthlyNote.prototype.getCurrent
+    >;
+    mockMonthlyGetCurrent.mockImplementation(() => existing);
+
+    // Mid-period, so creation is not due, but the note already exists
+    jest.spyOn(Date, 'now').mockReturnValue(new Date('2026-08-17T12:00:00Z').getTime());
+
+    await sut.checkAndCreateNotes(settings);
+
+    expect(mockMonthlyGetCurrent).toHaveBeenCalled();
   });
 
   it('processes Templater code when creating new notes and setting is enabled', async () => {

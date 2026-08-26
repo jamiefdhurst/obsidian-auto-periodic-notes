@@ -1,7 +1,9 @@
-import { App, PluginSettingTab, type SettingDefinitionItem } from 'obsidian';
+import { App, moment, PluginSettingTab, type SettingDefinitionItem } from 'obsidian';
 import AutoPeriodicNotes from '..';
-import { periodicities } from '../constants';
+import { periodicities, periodicityUnits } from '../constants';
+import { getCreationDate } from '../notes/schedule';
 import { TEMPLATER_PLUGIN } from '../templater';
+import type { ICreateOn, IPeriodicity } from '../settings';
 import type { ObsidianApp } from '../types';
 
 export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
@@ -88,7 +90,22 @@ export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
                   },
                 },
               ]
-            : []),
+            : [
+                {
+                  // Creating the note later in its period suits review-style
+                  // notes, which need the period to have happened first
+                  name: `Create new ${periodicity} notes on`,
+                  // Deliberately says nothing about the selected option, so
+                  // that it cannot fall out of step with the dropdown
+                  desc: `Choose when during the ${periodicityUnits[periodicity]} the note is created.`,
+                  control: {
+                    type: 'dropdown' as const,
+                    key: `${periodicity}.createOn`,
+                    options: this.createOnOptions(periodicity),
+                    disabled: () => !this.plugin.settings[periodicity].enabled,
+                  },
+                },
+              ]),
           {
             name: `Open new ${periodicity} notes`,
             desc: 'Automatically open the new note when created.',
@@ -159,6 +176,30 @@ export default class AutoPeriodicNotesSettingsTab extends PluginSettingTab {
 
     // Re-evaluate the `disabled` predicates, e.g. pin depends on open
     this.refreshDomState();
+  }
+
+  /**
+   * Names the option choices after the period itself, so that a monthly note
+   * offers "First day of the month" rather than a generic "period", and
+   * resolves each one against the current period so the day it lands on is
+   * visible - weekly notes in particular depend on the vault's week start.
+   *
+   * The dates live on the options rather than in a description because the
+   * options do not depend on which one is selected, so they show the right
+   * dates without the tab having to re-render when the choice changes. It
+   * also puts all three dates side by side when choosing between them.
+   */
+  private createOnOptions(periodicity: IPeriodicity): Record<string, string> {
+    const period = periodicityUnits[periodicity];
+    const now = moment();
+    const on = (createOn: ICreateOn): string =>
+      getCreationDate(periodicity, createOn, now).format('ddd D MMM');
+
+    return {
+      'first-day': `First day of the ${period} (${on('first-day')})`,
+      'last-weekday': `Last weekday of the ${period} (${on('last-weekday')})`,
+      'last-day': `Last day of the ${period} (${on('last-day')})`,
+    };
   }
 
   private isAnyPeriodicityAvailable(): boolean {

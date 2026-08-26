@@ -3,6 +3,13 @@ import { periodicities } from '../constants';
 
 export type IPeriodicity = 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly';
 
+/**
+ * When within its own period a note should be created. This never changes
+ * which note is created - it is always the note for the current period - only
+ * the point at which it appears.
+ */
+export type ICreateOn = 'first-day' | 'last-weekday' | 'last-day';
+
 export interface IPeriodicitySettings {
   available: boolean;
   enabled: boolean;
@@ -10,6 +17,7 @@ export interface IPeriodicitySettings {
   openAndPin?: boolean; // Deprecated: will be removed in a future breaking release
   open: boolean;
   pin: boolean;
+  createOn: ICreateOn;
 }
 
 export interface IDailySettings extends IPeriodicitySettings {
@@ -34,6 +42,7 @@ export const DEFAULT_PERIODICITY_SETTINGS: IPeriodicitySettings = Object.freeze(
   closeExisting: false,
   open: false,
   pin: false,
+  createOn: 'first-day',
 });
 
 export const DEFAULT_SETTINGS: ISettings = Object.freeze({
@@ -63,5 +72,19 @@ export function applyDefaultSettings(savedSettings: ISettings): ISettings {
     }
   }
 
-  return Object.assign({}, DEFAULT_SETTINGS, savedSettings);
+  const settings = Object.assign({}, DEFAULT_SETTINGS, savedSettings);
+
+  // The merge above is shallow, so a saved periodicity replaces the default
+  // object wholesale and any key added since it was saved would be missing.
+  // Re-apply the per-periodicity defaults underneath what was saved.
+  const merged = settings as unknown as Record<string, IPeriodicitySettings>;
+  for (const periodicity of periodicities) {
+    merged[periodicity] = Object.assign(
+      {},
+      DEFAULT_SETTINGS[periodicity],
+      savedSettings?.[periodicity]
+    );
+  }
+
+  return settings;
 }

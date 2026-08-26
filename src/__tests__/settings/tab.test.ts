@@ -119,6 +119,8 @@ describe('settings tab', () => {
     expect(displayed).toContain('Close older daily notes');
     expect(displayed).toContain('Exclude weekends');
     expect(displayed).not.toContain('Enable automatic weekly notes');
+    // Choosing a day within the period is meaningless for daily notes
+    expect(displayed).not.toContain('Create new daily notes on');
   });
 
   it('displays settings for weekly periodicity', () => {
@@ -133,6 +135,40 @@ describe('settings tab', () => {
     expect(displayed).toContain('Close older weekly notes');
     expect(displayed).not.toContain('Exclude weekends');
     expect(displayed).not.toContain('Enable automatic monthly notes');
+    expect(displayed).toContain('Create new weekly notes on');
+  });
+
+  it('names the options after the period and resolves each to a date', () => {
+    plugin.settings.quarterly.available = true;
+    jest.spyOn(Date, 'now').mockReturnValue(new Date('2026-08-17T12:00:00Z').getTime());
+
+    const setting = find(sut.getSettingDefinitions(), 'Create new quarterly notes on');
+
+    expect(setting.control.options).toEqual({
+      'first-day': 'First day of the quarter (Wed 1 Jul)',
+      'last-weekday': 'Last weekday of the quarter (Wed 30 Sep)',
+      'last-day': 'Last day of the quarter (Wed 30 Sep)',
+    });
+  });
+
+  it('resolves the option dates without regard to which one is selected', () => {
+    plugin.settings.monthly.available = true;
+    jest.spyOn(Date, 'now').mockReturnValue(new Date('2026-08-17T12:00:00Z').getTime());
+
+    // The dates must be identical whichever option is currently stored, so
+    // that they stay correct without the tab re-rendering on every change
+    plugin.settings.monthly.createOn = 'first-day';
+    const before = find(sut.getSettingDefinitions(), 'Create new monthly notes on');
+
+    plugin.settings.monthly.createOn = 'last-day';
+    const after = find(sut.getSettingDefinitions(), 'Create new monthly notes on');
+
+    expect(after.control.options).toEqual(before.control.options);
+    expect(after.control.options['last-day']).toEqual('Last day of the month (Mon 31 Aug)');
+
+    // The description must not depend on the selection either
+    expect(after.desc).toEqual(before.desc);
+    expect(after.desc).toContain('Choose when during the month');
   });
 
   it('displays settings for all periodicities', () => {
@@ -179,6 +215,18 @@ describe('settings tab', () => {
     for (const dependent of dependents) {
       expect(dependent.control.disabled()).toBe(false);
     }
+  });
+
+  it('disables the create on setting until the note type is enabled', () => {
+    plugin.settings.monthly.available = true;
+
+    const createOn = find(sut.getSettingDefinitions(), 'Create new monthly notes on');
+
+    expect(createOn.control.disabled()).toBe(true);
+
+    plugin.settings.monthly.enabled = true;
+
+    expect(createOn.control.disabled()).toBe(false);
   });
 
   it('disables pinning until the note type is enabled and set to open', () => {
