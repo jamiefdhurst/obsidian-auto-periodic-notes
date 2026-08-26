@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-08-26
+
+### Added
+
+- feat: allow notes to be created at the end of their period (be50c6b)
+- (808d18c)
+
+### Other
+
+- chore: fix transitive dependency vulnerabilities (ef1add2)
+- (6d191f3)
+
 ## [1.3.0] - 2026-08-23
 
 ### Added
@@ -16,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ci: attest build provenance for release assets (a733548)
 - (58800d1)
+- [skip ci] Update version to v1.3.0 (266831c)
 
 ## [1.2.3] - 2026-08-19
 

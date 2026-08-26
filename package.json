@@ -1,6 +1,6 @@
 {
   "name": "obsidian-auto-periodic-notes",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Creates new periodic notes automatically in the background and allows these to be pinned in your open tabs, optionally using the Periodic Notes plugin.",
   "main": "main.js",
   "scripts": {
