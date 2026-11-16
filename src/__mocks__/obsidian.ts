@@ -35,6 +35,7 @@ Workspace.prototype.getLeaf = jest.fn();
 Workspace.prototype.iterateAllLeaves = jest.fn();
 export const WorkspaceLeaf = jest.fn();
 WorkspaceLeaf.prototype.detach = jest.fn();
+WorkspaceLeaf.prototype.getViewState = jest.fn();
 WorkspaceLeaf.prototype.openFile = jest.fn();
 WorkspaceLeaf.prototype.setPinned = jest.fn();
 WorkspaceLeaf.prototype.view = jest.fn();
