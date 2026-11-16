@@ -18,7 +18,7 @@ const DEFAULT_WAIT_TIMEOUT: number = 1000;
 export default class NotesProvider {
   private waitTimeout: number;
   private workspace: ObsidianWorkspace;
-  private workspaceLeaves: Record<string, WorkspaceLeaf> = {};
+  private workspaceLeaves: Record<string, WorkspaceLeaf[]> = {};
   private app: App;
 
   constructor(workspace: ObsidianWorkspace, app: App, waitTimeout?: number) {
@@ -123,12 +123,14 @@ export default class NotesProvider {
     }
   }
 
-  private getOpenWorkspaceLeaves(): Record<string, WorkspaceLeaf> {
+  private getOpenWorkspaceLeaves(): Record<string, WorkspaceLeaf[]> {
     if (!Object.keys(this.workspaceLeaves).length) {
       this.workspace.iterateAllLeaves((leaf) => {
-        const file = leaf.view.getState()?.file;
+        // Background tabs are deferred until shown, and a deferred view does
+        // not know its file - the leaf's view state does either way
+        const file = leaf.getViewState().state?.file;
         if (typeof file === 'string') {
-          this.workspaceLeaves[file] = leaf;
+          (this.workspaceLeaves[file] ??= []).push(leaf);
         }
       });
     }
@@ -145,9 +147,9 @@ export default class NotesProvider {
       debug('Checking for any existing notes to close');
       const existingNotes = cls.getAllPaths();
       const toDetach: WorkspaceLeaf[] = [];
-      Object.entries(this.getOpenWorkspaceLeaves()).forEach(([file, leaf]) => {
+      Object.entries(this.getOpenWorkspaceLeaves()).forEach(([file, leaves]) => {
         if (existingNotes.indexOf(file) > -1) {
-          toDetach.push(leaf);
+          toDetach.push(...leaves);
         }
       });
 
