@@ -7,13 +7,35 @@ import { EventEmitter } from 'events';
 
 jest.mock('node:child_process');
 
+type GitResult = { code?: number; stdout?: string; stderr?: string };
+
 describe('Git', () => {
   let vault: Vault;
   let now: Moment;
   let sut: Git;
   let settings: ISettings;
   let mockSpawn: jest.MockedFunction<typeof spawn>;
-  let mockProcess: EventEmitter;
+  let consoleError: jest.SpyInstance;
+
+  // Each git subcommand gets a fresh process, which exits with the given
+  // result. Unless overridden, status reports a change so a commit is made
+  const mockGit = (results: Record<string, GitResult> = {}) => {
+    const defaults: Record<string, GitResult> = { status: { stdout: ' M note.md\n' } };
+    mockSpawn.mockImplementation(((_command: string, args: string[]) => {
+      const result = { ...defaults, ...results }[args[0]] ?? {};
+      const process = new EventEmitter() as any;
+      process.stdout = new EventEmitter();
+      process.stderr = new EventEmitter();
+      setTimeout(() => {
+        if (result.stdout) process.stdout.emit('data', result.stdout);
+        if (result.stderr) process.stderr.emit('data', result.stderr);
+        process.emit('close', result.code ?? 0);
+      }, 0);
+      return process;
+    }) as any);
+  };
+
+  const subcommands = () => mockSpawn.mock.calls.map(([, args]) => (args as string[])[0]);
 
   beforeEach(() => {
     vault = jest.fn() as unknown as Vault;
@@ -27,11 +49,9 @@ describe('Git', () => {
     settings.gitCommit = true;
     settings.gitCommitMessage = 'Auto commit {DATE}';
 
-    // Mock spawn
     mockSpawn = spawn as jest.MockedFunction<typeof spawn>;
-    mockProcess = new EventEmitter();
-    (mockProcess as any).stderr = new EventEmitter();
-    mockSpawn.mockReturnValue(mockProcess as any);
+    mockGit();
+    consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     // Set time to within the commit window (18:00-18:04)
     now = moment('2025-01-01T18:02:00');
@@ -41,6 +61,7 @@ describe('Git', () => {
 
   afterEach(() => {
     jest.resetAllMocks();
+    consoleError.mockRestore();
   });
 
   it('does not commit changes when setting is disabled', async () => {
@@ -68,58 +89,73 @@ describe('Git', () => {
     expect(mockSpawn).not.toHaveBeenCalled();
   });
 
-  it('handles errors when committing changes', async () => {
-    const commitPromise = sut.commitChanges(settings);
+  it('does not commit when there are no changes', async () => {
+    mockGit({ status: { stdout: '' } });
 
-    // Simulate error on first spawn call (git add)
-    setTimeout(() => {
-      mockProcess.emit('error', new Error('Git command failed'));
-    }, 0);
+    await sut.commitChanges(settings);
 
-    // Should not throw error, handles it gracefully
-    await expect(commitPromise).resolves.toBeUndefined();
+    expect(subcommands()).toEqual(['status']);
+    expect(consoleError).not.toHaveBeenCalled();
   });
 
   it('commits and pushes changes correctly', async () => {
-    const commitPromise = sut.commitChanges(settings);
+    await sut.commitChanges(settings);
 
-    // Simulate successful git add
-    setTimeout(() => {
-      mockProcess.emit('close', 0);
-    }, 0);
-
-    // Wait a bit for the first command to complete
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
-    // Simulate successful git commit
-    setTimeout(() => {
-      mockProcess.emit('close', 0);
-    }, 0);
-
-    // Wait a bit for the second command to complete
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
-    // Simulate successful git push
-    setTimeout(() => {
-      mockProcess.emit('close', 0);
-    }, 0);
-
-    await commitPromise;
-
-    expect(mockSpawn).toHaveBeenCalledTimes(3);
-    expect(mockSpawn).toHaveBeenNthCalledWith(1, 'git', ['add', '.'], {
+    expect(mockSpawn).toHaveBeenCalledTimes(4);
+    expect(mockSpawn).toHaveBeenNthCalledWith(1, 'git', ['status', '--porcelain'], {
+      cwd: '/mock/path',
+    });
+    expect(mockSpawn).toHaveBeenNthCalledWith(2, 'git', ['add', '.'], {
       cwd: '/mock/path',
     });
     expect(mockSpawn).toHaveBeenNthCalledWith(
-      2,
+      3,
       'git',
-      ['commit', '-m', '"Auto commit 2025-01-01"'],
+      ['commit', '-m', 'Auto commit 2025-01-01'],
       {
         cwd: '/mock/path',
       }
     );
-    expect(mockSpawn).toHaveBeenNthCalledWith(3, 'git', ['push'], {
+    expect(mockSpawn).toHaveBeenNthCalledWith(4, 'git', ['push'], {
       cwd: '/mock/path',
     });
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+
+  it('carries on when git writes to stderr but succeeds', async () => {
+    mockGit({
+      add: { stderr: 'warning: LF will be replaced by CRLF' },
+      push: { stderr: 'To github.com:example/vault.git\n   abc..def  main -> main' },
+    });
+
+    await sut.commitChanges(settings);
+
+    expect(subcommands()).toEqual(['status', 'add', 'commit', 'push']);
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+
+  it('stops and reports an error when a command exits non-zero', async () => {
+    mockGit({ add: { code: 128, stderr: 'fatal: index.lock exists' } });
+
+    await expect(sut.commitChanges(settings)).resolves.toBeUndefined();
+
+    expect(subcommands()).toEqual(['status', 'add']);
+    expect(consoleError).toHaveBeenCalledWith(
+      expect.stringContaining('git add exited with code 128: fatal: index.lock exists')
+    );
+  });
+
+  it('reports an error when git cannot be started', async () => {
+    mockSpawn.mockImplementation((() => {
+      const process = new EventEmitter() as any;
+      process.stdout = new EventEmitter();
+      process.stderr = new EventEmitter();
+      setTimeout(() => process.emit('error', new Error('spawn git ENOENT')), 0);
+      return process;
+    }) as any);
+
+    await expect(sut.commitChanges(settings)).resolves.toBeUndefined();
+
+    expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('spawn git ENOENT'));
   });
 });

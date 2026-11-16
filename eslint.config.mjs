@@ -53,6 +53,18 @@ export default tseslint.config(
       // names, so the sentence-case rule wrongly lowercases them. The directory
       // scan does not run this rule
       'obsidianmd/ui/sentence-case': 'off',
+
+      // esbuild leaves import() of an external module as a native dynamic
+      // import, which Obsidian cannot resolve for Node built-ins. This broke
+      // git commits silently, so use a guarded require() instead
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ImportExpression',
+          message:
+            'Dynamic import() is not resolved by Obsidian for external modules. Use require() guarded by Platform.isDesktop.',
+        },
+      ],
     },
   },
 
