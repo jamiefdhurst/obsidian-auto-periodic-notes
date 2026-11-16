@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2026-11-16
+
+### Fixed
+
+- fix: load child_process with require so git commits run (4020680)
+- (c5b61b0)
+
+### Other
+
+- chore(deps-dev): bump the dev-dependencies group with 6 updates (83bfd78)
+- (579e035)
+- chore(deps-dev): bump fast-uri from 3.1.5 to 3.1.7 (3581374)
+- (08e4735)
+- chore: bump js-yaml from 4.3.1 to 4.3.2 (c29caff)
+- (0824338)
+- chore(deps-dev): bump the dev-dependencies group with 9 updates (cf55a3e)
+- (5da55db)
+- chore: bump brace-expansion (22e2ad9)
+- (bb28629)
+- chore(deps-dev): bump handlebars from 4.7.9 to 4.7.10 (3f81aca)
+- (8662566)
+- chore(deps-dev): bump fast-uri from 3.1.7 to 3.1.9 (cb240cd)
+- (f26ef29)
+- chore(deps-dev): bump the dev-dependencies group with 6 updates (49da454)
+- (8d6acc1)
+- Merge branch 'main' into fix/git-commit-child-process (5b09e8e)
+
 ## [1.4.0] - 2026-08-26
 
 ### Added
@@ -16,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - chore: fix transitive dependency vulnerabilities (ef1add2)
 - (6d191f3)
+- [skip ci] Update version to v1.4.0 (d8cf979)
 
 ## [1.3.0] - 2026-08-23
 
