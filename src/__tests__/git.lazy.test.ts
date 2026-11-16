@@ -81,8 +81,10 @@ describe('Git lazy loading of node:child_process', () => {
     (vault.adapter as FileSystemAdapter).getBasePath = jest.fn().mockReturnValue('/mock/path');
 
     const mockProcess = new EventEmitter() as EventEmitter & {
+      stdout: EventEmitter;
       stderr: EventEmitter;
     };
+    mockProcess.stdout = new EventEmitter();
     mockProcess.stderr = new EventEmitter();
     mockChildProcess.spawn.mockImplementation(() => {
       setTimeout(() => mockProcess.emit('close', 0), 0);
@@ -92,7 +94,7 @@ describe('Git lazy loading of node:child_process', () => {
     await new Git(vault, now).commitChanges(settings);
 
     expect(mockChildProcess.loaded).toBe(true);
-    expect(mockChildProcess.spawn).toHaveBeenCalledWith('git', ['add', '.'], {
+    expect(mockChildProcess.spawn).toHaveBeenCalledWith('git', ['status', '--porcelain'], {
       cwd: '/mock/path',
     });
   });
