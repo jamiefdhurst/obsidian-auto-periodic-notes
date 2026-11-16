@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2026-11-16
+
+### Fixed
+
+- fix: close older notes in background tabs (de3403c)
+- (f9b8750)
+
+### Other
+
+- chore: bump moment, obsidian and eslint-plugin-obsidianmd (b8bd45e)
+- (b5e9b74)
+
 ## [1.4.1] - 2026-11-16
 
 ### Fixed
@@ -31,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore(deps-dev): bump the dev-dependencies group with 6 updates (49da454)
 - (8d6acc1)
 - Merge branch 'main' into fix/git-commit-child-process (5b09e8e)
+- [skip ci] Update version to v1.4.1 (5c1f494)
 
 ## [1.4.0] - 2026-08-26
 
